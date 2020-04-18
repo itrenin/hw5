@@ -1,33 +1,41 @@
-import express from 'express'
-import fs from 'fs'
-import path from 'path'
-
-import React from 'react'
-import ReactDOMServer from 'react-dom/server'
-
-import Appl from './src'
-
-const PORT = 3000
+const express = require('express')
+const path = require('path')
 
 const app = express()
+require('./models/connection')
 
-app.use('^/$', (req, res, next) => {
-  fs.readFile(path.join(__dirname, './build/index.html'), 'utf-8', (err, data) => {
-    if (err) {
-      console.log(err)
-      return res.status(500).send('Some error happened')
-    }
-    return res.send(
-      data.replace(
-        '<div id="root"></div>',
-        `<div id="root">${ReactDOMServer.renderToString(<Appl />)}</div>`
-      )
-    )
+// parse application/json
+app.use(express.json())
+
+app.use(function (_, res, next) {
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE')
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept',
+  )
+  next()
+})
+app.use(express.static(path.join(__dirname, 'build')))
+require('./auth/passport')
+app.use('/api', require('./routes'))
+app.use('*', (_req, res) => {
+  const file = path.resolve(__dirname, 'build', 'index.html')
+  res.sendFile(file)
+})
+
+app.use((err, _, res, __) => {
+  console.log(err.stack)
+  res.status(500).json({
+    statusMessage: 'Error',
+    data: { status: 500, message: err.message },
   })
 })
 
-app.use(express.static(path.join(__dirname, './build')))
+const PORT = process.env.PORT || 3000
 
-app.listen(PORT, () => {
-  console.log(`App launched on ${PORT}`)
+app.listen(PORT, function () {
+  console.log(`Server running. Use our API on port: ${PORT}`)
 })
+
+module.exports = app

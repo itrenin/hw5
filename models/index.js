@@ -1,62 +1,73 @@
-const mongoose = require('mongoose')
-const Person = require('./models/person')
-const Auto = require('./models/auto')
-//const Schema = mongoose.Schema
+//const mongoose = require("mongoose");
+const User = require("./schemas/user");
+const News = require("./schemas/news");
 
-mongoose.Promise = global.Promise
+module.exports.getUserByName = async (userName) => {
+  return User.findOne({ userName });
+};
+module.exports.getUserById = async (id) => {
+  return User.findById({ _id: id });
+};
+module.exports.getUsers = async () => {
+  return User.find();
+};
+module.exports.createUser = async (data) => {
+  const { username, surName, firstName, middleName, password } = data;
+  const newUser = new User({
+    userName: username,
+    surName,
+    firstName,
+    middleName,
+    image:
+      "https://icons-for-free.com/iconfiles/png/512/profile+user+icon-1320166082804563970.png",
+    permission: {
+      chat: { C: true, R: true, U: true, D: true },
+      news: { C: true, R: true, U: true, D: true },
+      settings: { C: true, R: true, U: true, D: true },
+    },
+  });
+  newUser.setPassword(password);
+  const user = await newUser.save();
+  //console.log(user)
+  return user;
+};
+module.exports.updateUser = (id, data) => {
+  return User.findByIdAndUpdate({ _id: id }, data);
+};
+module.exports.deleteUser = (id) => {
+  return User.findByIdAndDelete({ _id: id });
+};
 
-//mongoose.connect('mongodb://localhost:27017/persondb')
-mongoose.connect(
-  'mongodb+srv://itrenin:lofthw5@cluster0-aak0t.mongodb.net/test?retryWrites=true&w=majority'
-)
+module.exports.getNews = async () => {
+  return News.find();
+};
+module.exports.createNews = async (data, user) => {
+  // const {title, text} = data
+  //const dateCreated = Date(Date.now())
+  const dateCreated = new Date()
+  console.log(dateCreated)
 
-// const Person = mongoose.model('person', personScheme)
-// const user = new Person({
-//   name: 'Толик',
-//   age: 41,
-// })
+  const newPost = new News({
+    created_at: dateCreated,
+    title: data.title,
+    text: data.text,
+    user: {
+      firstName: user.firstName,
+      id: user._id,
+      image: user.image,
+      middleName: user.middleName,
+      surName: user.surName,
+      username: user.userName
+  }
+  });
 
-// user
-//   .save()
-// Person.create({
-//   name: 'Сережа',
-//   age: 35,
-// })
-Auto.create({
-  name: 'Lada',
-  model: 'Vesta',
-  body: 'sedan',
-  engine: 'gasoline',
-})
-  .then(function (doc) {
-    console.log(`Сохранен объект ${doc}`)
-    mongoose.disconnect()
-  })
-  .catch(function (err) {
-    console.error(err)
-    mongoose.disconnect()
-  })
-
-// Person.find({ name: 'Толик' }, 'name age', function (err, person) {
-//   if (err) {
-//     return console.log(err)
-//   }
-//   console.log(person)
-//   mongoose.disconnect()
-// })
-
-// Person.findById('5e960d1a46017c3f78987dc9', function (err, person) {
-//   if (err) {
-//     return console.log(err)
-//   }
-//   console.log(person)
-//   mongoose.disconnect()
-// })
-
-// Person.findByIdAndDelete('5e960d1a46017c3f78987dc9', function (err, person) {
-//   if (err) {
-//     return console.log(err)
-//   }
-//   console.log(person)
-//   mongoose.disconnect()
-// })
+  const post = await newPost.save()
+  //console.log(newPost)
+  return post
+};
+module.exports.updateNews = async (id, data) => {
+  return News.findByIdAndUpdate({ _id: id }, data);
+};
+module.exports.deleteNews = async (id) => {
+  return User.findByIdAndDelete({ _id: id });
+};
