@@ -69,5 +69,6 @@ module.exports.updateNews = async (id, data) => {
   return News.findByIdAndUpdate({ _id: id }, data);
 };
 module.exports.deleteNews = async (id) => {
-  return User.findByIdAndDelete({ _id: id });
+  console.log(id)
+  return News.findByIdAndDelete({ _id: id });
 };

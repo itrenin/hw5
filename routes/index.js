@@ -140,7 +140,7 @@ router
         delete el.__v;
         el.id = el._id;
         delete el._id;
-        console.log(el);
+        //console.log(el);
         return el;
       })
     );
