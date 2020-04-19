@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
-require('dotenv').config()
-let uri = process.env.uriDB
+//require('dotenv').config()
+//let uri = process.env.uriDB
+let uri = 'mongodb+srv://itrenin:LoftHW5@cluster0-aak0t.mongodb.net/test?retryWrites=true&w=majority'
 
 mongoose.Promise = global.Promise
 mongoose.set('useFindAndModify', false)
